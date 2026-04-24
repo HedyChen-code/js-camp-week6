@@ -27,6 +27,23 @@ async function getProducts() {
 	// 1. 使用 fetch() 發送 GET 請求
 	// 2. 使用 response.json() 解析回應
 	// 3. 回傳 data.products
+
+	// catch 擋網路層錯誤
+	try {
+		const url = `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/products`;
+		const response = await fetch(url);
+		// 擋 4XX、5XX 錯誤
+		if (!response.ok) {
+			console.error('Server 回傳錯誤：', response.status); // 開發者除錯用
+			return { success: false, error: `HTTP ${response.status}` }; // 呼叫端處理用
+		};
+
+		const data = await response.json();
+		return data.products;
+	} catch (error) {
+		console.error('網路層錯誤，取得產品資料失敗')
+		return { success: false, error: '網路層錯誤，取得產品資料失敗' };
+	}
 }
 
 /**
@@ -35,6 +52,22 @@ async function getProducts() {
  */
 async function getCart() {
 	// 請實作此函式
+	try {
+		const url = `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`;
+		const response = await fetch(url);
+
+		if (!response.ok) {
+			console.error('Server 回傳錯誤：', response.status);
+			return { success: false, error: `HTTP ${response.status}` };
+		}
+
+		const data = await response.json();
+		console.log(data.carts);
+		return data;
+	} catch (error) {
+		console.error('網路層錯誤，取得購物車資料失敗');
+		return { success: false, error: '網路層錯誤，取得購物車資料失敗' };
+	}
 }
 
 /**
@@ -48,6 +81,21 @@ async function getProductsSafe() {
 	// 2. 檢查 response.ok 判斷是否成功
 	// 3. 成功回傳 { success: true, data: [...] }
 	// 4. 失敗回傳 { success: false, error: '錯誤訊息' }
+	try {
+		const url = `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/products`;
+		const response = await fetch(url);
+
+		if (!response.ok) {
+			console.error('Server 回傳錯誤：', response.status);
+			return { success: true, error: `HTTP 層錯誤：${response.status}`};
+		}
+
+		const data = await response.json();
+		return { success: true, data: data.products};
+	} catch (error) {
+		console.error('網路層錯誤')
+		return { sucess: false, error: '網路層錯誤'};
+	}
 }
 
 // ========================================
@@ -67,6 +115,25 @@ async function addToCart(productId, quantity) {
 	// 2. body 格式：{ data: { productId: "xxx", quantity: 1 } }
 	// 3. 記得設定 headers: { 'Content-Type': 'application/json' }
 	// 4. body 要用 JSON.stringify() 轉換
+	try {
+		const url = `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`;
+		const fetchOptions = {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ data: { productId: productId, quantity} }),
+		};
+		const response = await fetch(url, fetchOptions);
+
+		if (!response.ok) {
+			console.error('Server 回傳錯誤：', response.status);
+			return { success: false, error: `HTTP ${response.status}` };
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('網路層錯誤，加入購物車操作失敗');
+		return { success: false, error: '網路層錯誤，加入購物車操作失敗' };
+	}
 }
 
 /**
@@ -80,6 +147,27 @@ async function updateCartItem(cartId, quantity) {
 	// 提示：
 	// 1. 發送 PATCH 請求
 	// 2. body 格式：{ data: { id: "購物車ID", quantity: 數量 } }
+	try {
+		const url = `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`;
+		const fetchOptions = {
+			method: 'PATCH',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ data: { id: cartId, quantity }}),
+		}
+		const response = await fetch(url, fetchOptions);
+
+		if (!response.ok) {
+			console.error('Server 回傳錯誤：', response.status);
+			return { success: false, error: `HTTP ${response.status}` };
+		}
+
+		const data = await response.json();
+		console.log(data);
+		return data;
+	} catch (error) {
+		console.error('網路層錯誤，編輯購物車商品數量失敗');
+		return { success: false, error: '網路層錯誤，編輯購物車商品數量失敗' };
+	}
 }
 
 /**
@@ -90,6 +178,24 @@ async function updateCartItem(cartId, quantity) {
 async function removeCartItem(cartId) {
 	// 請實作此函式
 	// 提示：發送 DELETE 請求到 /carts/{id}
+	try {
+		const url = `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts/${cartId}`;
+		const fetchOptions = {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json' },
+		}
+		const response = await fetch(url, fetchOptions);
+
+		if (!response.ok) {
+			console.error('Server 回傳錯誤：', response.status);
+			return { success: false, error: `HTTP ${response.status}` };
+		}
+		const data = await response.json();
+		return data;
+	} catch (error) {
+		console.error('網路層錯誤，刪除購物車特定商品失敗');
+		return { success: false, error: '網路層錯誤，刪除購物車特定商品失敗' };
+	}
 }
 
 /**
@@ -99,6 +205,26 @@ async function removeCartItem(cartId) {
 async function clearCart() {
 	// 請實作此函式
 	// 提示：發送 DELETE 請求到 /carts
+	try {
+		const url = `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`;
+		const fetchOptions = {
+			method: 'DELETE',
+			headers: { 'Content-Type': 'application/json'},
+		};
+		const response = await fetch(url, fetchOptions);
+
+		if (!response.ok) {
+			console.error('Server 回傳錯誤：', response.status);
+			return { success: false, error: `HTTP ${response.status}` };
+		};
+
+		const data = await response.json();
+		console.log('data: ',  data);
+		return data;
+	} catch (error) {
+		console.error('網路層錯誤，清空購物車操作失敗');
+		return { success: false, error: '網路層錯誤，清空購物車操作失敗' };
+	}
 }
 
 // ========================================
@@ -110,12 +236,30 @@ async function clearCart() {
 
 1. HTTP 狀態碼的分類（1xx, 2xx, 3xx, 4xx, 5xx 各代表什麼）
    答：
+	 1xx：資訊、請求處理中
+	 2xx：請求成功
+	 3xx：重新導向
+	 4xx：用戶端錯誤（前端/用戶 -> 修改請求內容）
+	 5xx：伺服器端錯誤（後端 -> 後端修復）
 
 2. GET、POST、PATCH、PUT、DELETE 的差異
    答：
+	 GET： 取得資料 HTTP 的方法
+	 POST： 送出（新增）資料 HTTP 的方法
+	 PATCH：修改（部分）資料 HTTP 的方法
+	 PUT： 整份取代 HTTP 的方法
+	 DELETE：刪除資料 HTTP 的方法
 
 3. 什麼是 RESTful API？
    答：
+	 RESTful API 是指，一種設計 API 的風格規範，讓前後端溝通有統一的規則。
+	 RESTful 是 2000 年由 Roy Fielding 提出的設計風格，意指「符合 REST 設計風格的」：
+	 	1. URL 路徑：代表資源，用名詞。（/products,  /carts, /user/345/orders）
+		2. HTTP 方法：代表動作，用動詞（ GET/POST/PUT/PATCH/DELETE）
+		3. HTTP 狀態碼：代表結果 (2xx/4xx/5xx)
+		4. 回傳格式：通常是 JSON
+
+		=> RESTful API 的核心概念： 用 HTTP 方法 + URL 來表達網路請求的操作，讓 API 具備統一性與易讀性，以便利前後端溝通與操作ㄋ。
 
 
 */
