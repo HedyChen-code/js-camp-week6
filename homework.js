@@ -36,6 +36,7 @@ async function getProducts() {
 		if (!response.ok) {
 			console.error('Server 回傳錯誤：', response.status); // 開發者除錯用
 			return { success: false, error: `HTTP ${response.status}` }; // 呼叫端處理用
+			// 或用 throw new Error('錯誤訊息');
 		};
 
 		const data = await response.json();
@@ -62,8 +63,8 @@ async function getCart() {
 		}
 
 		const data = await response.json();
-		console.log(data.carts);
-		return data;
+		const { carts, total, finalTotal } = data;
+		return { carts, total, finalTotal };
 	} catch (error) {
 		console.error('網路層錯誤，取得購物車資料失敗');
 		return { success: false, error: '網路層錯誤，取得購物車資料失敗' };
@@ -120,7 +121,7 @@ async function addToCart(productId, quantity) {
 		const fetchOptions = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ data: { productId: productId, quantity} }),
+			body: JSON.stringify({ data: { productId, quantity} }),
 		};
 		const response = await fetch(url, fetchOptions);
 
@@ -162,7 +163,6 @@ async function updateCartItem(cartId, quantity) {
 		}
 
 		const data = await response.json();
-		console.log(data);
 		return data;
 	} catch (error) {
 		console.error('網路層錯誤，編輯購物車商品數量失敗');
@@ -182,7 +182,6 @@ async function removeCartItem(cartId) {
 		const url = `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts/${cartId}`;
 		const fetchOptions = {
 			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
 		}
 		const response = await fetch(url, fetchOptions);
 
@@ -209,7 +208,6 @@ async function clearCart() {
 		const url = `${BASE_URL}/api/livejs/v1/customer/${API_PATH}/carts`;
 		const fetchOptions = {
 			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json'},
 		};
 		const response = await fetch(url, fetchOptions);
 
@@ -219,7 +217,6 @@ async function clearCart() {
 		};
 
 		const data = await response.json();
-		console.log('data: ',  data);
 		return data;
 	} catch (error) {
 		console.error('網路層錯誤，清空購物車操作失敗');
@@ -259,7 +256,7 @@ async function clearCart() {
 		3. HTTP 狀態碼：代表結果 (2xx/4xx/5xx)
 		4. 回傳格式：通常是 JSON
 
-		=> RESTful API 的核心概念： 用 HTTP 方法 + URL 來表達網路請求的操作，讓 API 具備統一性與易讀性，以便利前後端溝通與操作ㄋ。
+		=> RESTful API 的核心概念： 用 HTTP 方法 + URL 來表達網路請求的操作，讓 API 具備統一性與易讀性，以便利前後端溝通與操作。
 
 
 */
@@ -324,6 +321,49 @@ if (require.main === module) {
 			);
 		} catch (error) {
 			console.log("getProductsSafe 錯誤:", error.message);
+		}
+
+		// 任務二測試
+		console.log("--- 任務二：POST 請求 - 購物車操作 ---");
+
+		try {
+			const result = await addToCart('zA28CGucDW3PMdFK5frW', 3);
+			console.log(
+				"addToCart:",
+				result,
+			);
+		} catch (error) {
+			console.log("addToCart 錯誤:", error.message);
+		}
+
+		try {
+			const result = await updateCartItem('JWwXbDdlOnrXbExDt49S', 1);
+			console.log(
+				"updateCartItem:",
+				result,
+			);
+		} catch (error) {
+			console.log("updateCartItem 錯誤:", error.message);
+		}
+
+		try {
+			const result = await removeCartItem('JWwXbDdlOnrXbExDt49S');
+			console.log(
+				"removeCartItem:",
+				result,
+			);
+		} catch (error) {
+			console.log("removeCartItem 錯誤:", error.message);
+		}
+
+		try {
+			const result = await clearCart();
+			console.log(
+				"clearCart:",
+				result,
+			);
+		} catch (error) {
+			console.log("clearCart 錯誤:", error.message);
 		}
 
 		console.log("\n=== 測試結束 ===");
