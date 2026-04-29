@@ -88,14 +88,14 @@ async function getProductsSafe() {
 
 		if (!response.ok) {
 			console.error('Server 回傳錯誤：', response.status);
-			return { success: true, error: `HTTP 層錯誤：${response.status}`};
+			return { success: false, error: `HTTP 層錯誤：${response.status}`};
 		}
 
 		const data = await response.json();
 		return { success: true, data: data.products};
 	} catch (error) {
 		console.error('網路層錯誤')
-		return { sucess: false, error: '網路層錯誤'};
+		return { success: false, error: '網路層錯誤'};
 	}
 }
 
